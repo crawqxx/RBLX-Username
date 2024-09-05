@@ -13,22 +13,13 @@ Make sure you have [Python](https://www.python.org/downloads/) installed for the
 
 ## 📦 Dependencies
 You'll need the following Python packages:
-- **requests**
+- **aiohttp**
 - **colorama**
 
 Install them using this command:
 ```bash
-pip install requests colorama
+pip install aiohttp colorama
 ```
 
-## 📸 Screenshots
-![App Screenshot](https://via.placeholder.com/800x400.png?text=App+Screenshot)
-
-## 📄 License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🤝 Contributing
-Contributions are welcome! Please read the [CONTRIBUTING](CONTRIBUTING.md) file for details on how to get started.
-
-## 📧 Contact
-If you have any questions, feel free to reach out at [your-email@example.com](mailto:your-email@example.com).
+## 📸 Screenshot
+![App Screenshot](https://telegra.ph/file/3cd4870662f5f0a00580a.png)
