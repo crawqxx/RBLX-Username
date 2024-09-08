@@ -1,6 +1,6 @@
 import importlib
 
-modules = ["os", "random", "secrets", "string", "time", "selenium", "aiohttp", "asyncio", "colorama"]
+modules = ["os", "shutil", "random", "secrets", "string", "time", "selenium", "aiohttp", "asyncio", "colorama"]
 not_installed = []
 
 for module in modules:
@@ -13,6 +13,7 @@ if not_installed:
         print(module)
 
 import os
+import shutil
 import random
 import secrets
 import string
@@ -37,17 +38,38 @@ def status(text):
     os.system('cls' if os.name == 'nt' else 'clear')
     print("\033[1;34m" + text + "\033[0m")
 
-def print_watermark():
-    print("""
-    ░█████╗░██████╗░░█████╗░░██╗░░░░░░░██╗░██████╗░██╗░░██╗██╗░░██╗
-    ██╔══██╗██╔══██╗██╔══██╗░██║░░██╗░░██║██╔═══██╗╚██╗██╔╝╚██╗██╔╝
-    ██║░░╚═╝██████╔╝███████║░╚██╗████╗██╔╝██║██╗██║░╚███╔╝░░╚███╔╝░
-    ██║░░██╗██╔══██╗██╔══██║░░████╔═████║░╚██████╔╝░██╔██╗░░██╔██╗░
-    ╚█████╔╝██║░░██║██║░░██║░░╚██╔╝░╚██╔╝░░╚═██╔═╝░██╔╝╚██╗██╔╝╚██╗
-    ░╚════╝░╚═╝░░╚═╝╚═╝░░╚═╝░░░╚═╝░░░╚═╝░░░░░╚═╝░░░╚═╝░░╚═╝╚═╝░░╚═╝
-          
-                        RBLX-Username v1.1 Beta
-    """)
+import shutil
+
+def get_watermark():
+    columns, _ = shutil.get_terminal_size(fallback=(80, 20))
+    if columns < 71:
+        return """
+█▀▀ █▀▀█ █▀▀█ █───█ █▀▀█ █─█ █─█ 
+█── █▄▄▀ █▄▄█ █▄█▄█ █──█ ▄▀▄ ▄▀▄ 
+▀▀▀ ▀─▀▀ ▀──▀ ─▀─▀─ ▀▀▀█ ▀─▀ ▀─▀
+     RBLX-Username v1.2 Beta
+        """
+    else:
+        return """
+        ░█████╗░██████╗░░█████╗░░██╗░░░░░░░██╗░██████╗░██╗░░██╗██╗░░██╗
+        ██╔══██╗██╔══██╗██╔══██╗░██║░░██╗░░██║██╔═══██╗╚██╗██╔╝╚██╗██╔╝
+        ██║░░╚═╝██████╔╝███████║░╚██╗████╗██╔╝██║██╗██║░╚███╔╝░░╚███╔╝░
+        ██║░░██╗██╔══██╗██╔══██║░░████╔═████║░╚██████╔╝░██╔██╗░░██╔██╗░
+        ╚█████╔╝██║░░██║██║░░██║░░╚██╔╝░╚██╔╝░░╚═██╔═╝░██╔╝╚██╗██╔╝╚██╗
+        ░╚════╝░╚═╝░░╚═╝╚═╝░░╚═╝░░░╚═╝░░░╚═╝░░░░░╚═╝░░░╚═╝░░╚═╝╚═╝░░╚═╝
+                  
+                            RBLX-Username v1.2 Beta
+        """
+
+# Helper function to print the watermark with the specified color
+def print_watermark(color=Fore.WHITE):
+    watermark = get_watermark()
+    print(color + watermark + Style.RESET_ALL)
+
+# Optimizing the status function to display text and color it for better readability
+def status(text, color=Fore.BLUE):
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print(color + text + Style.RESET_ALL)
 
 def display_error_message(username, code):
     if code == 0:
@@ -117,12 +139,75 @@ def generate_6_symbols_with_3_or_4_same():
 
     return username
 
+def generate_5_symbols_with_3_same_in_a_row():
+    chars = string.ascii_lowercase
+    required_characters = string.digits + "_"
+
+    # Ensure at least one number or underscore is included
+    while True:
+        position = random.choice([0, 1, 2])
+        char = random.choice(chars + required_characters)
+        username = list("#####")  # Start with placeholders
+        for i in range(3):
+            username[position + i] = char
+        remaining_chars = random.choices(chars + string.digits + "_", k=2)
+        if not any(c in required_characters for c in remaining_chars):
+            remaining_chars[random.randrange(len(remaining_chars))] = random.choice(required_characters)
+        j = 0
+        for i in range(5):
+            if username[i] == '#':
+                username[i] = remaining_chars[j]
+                j += 1
+        username = ''.join(username)
+        
+        # Apply generation rules
+        if username.startswith('_') or username.endswith('_'):
+            continue
+        if username.count('_') > 1 or 'kkk' in username:
+            continue
+        
+        return username
+
+def generate_6_symbols_with_4_or_5_same_in_a_row():
+    chars = string.ascii_lowercase + string.digits
+    count = random.choice([4, 5])
+    char = random.choice(chars)
+    username = char * count
+    remaining_chars = random.choices(string.ascii_lowercase + string.digits + "_", k=6 - count)
+
+    if '_' in remaining_chars:
+        remaining_chars = [c for c in remaining_chars if c != '_']
+        remaining_chars.append('_')
+
+    username += ''.join(remaining_chars)
+
+    if username.startswith('_') or username.endswith('_'):
+        return generate_6_symbols_with_4_or_5_same_in_a_row()
+    if username.count('_') > 1 or 'kkk' in username:
+        return generate_6_symbols_with_4_or_5_same_in_a_row()
+
+    return username
+
+def generate_5_symbols_using_2_symbols():
+    while True:
+        letter = random.choice(string.ascii_lowercase)
+        number = random.choice(string.digits)
+        pattern = random.sample([letter, number] * 5, 5)
+        username = ''.join(pattern)
+
+        # Apply generation rules
+        if username.startswith('_') or username.endswith('_'):
+            continue
+        if username.count('_') > 1 or 'kkk' in username:
+            continue
+
+        return username
+
 # Function to generate "Thin Name" usernames
 def generate_thin_name():
     thin_chars = "til1j"
     length = random.choice([5, 6])
     return ''.join(random.choices(thin_chars, k=length))
-
 
 def generate_username_by_filter():
     if generation_filter == 1:
@@ -134,7 +219,14 @@ def generate_username_by_filter():
     elif generation_filter == 4:
         return generate_6_symbols_with_3_or_4_same()
     elif generation_filter == 5:
-        return generate_thin_name() 
+        return generate_thin_name()
+    elif generation_filter == 6:
+        return generate_5_symbols_with_3_same_in_a_row()
+    elif generation_filter == 7:
+        return generate_6_symbols_with_4_or_5_same_in_a_row()
+    elif generation_filter == 8:
+        return generate_5_symbols_using_2_symbols()
+
 
 # Check if the Roblox username exists
 async def check_roblox_username_exists(session, username, timeout=4):
@@ -206,37 +298,43 @@ def display_username(username, status):
 async def generate_usernames(number_of_usernames):
     global generated_usernames_count
     usernames = []
-    session = aiohttp.ClientSession()
+    
+    async with aiohttp.ClientSession() as session:
+        try:
+            generated_usernames_count = 0  # Reset count before generating
 
-    try:
-        generated_usernames_count = 0  # Reset count before generating
+            for _ in range(number_of_usernames):
+                username = generate_username_by_filter()
 
-        for _ in range(number_of_usernames):
-            username = generate_username_by_filter()
+                # Check for the taken username condition
+                if not show_taken_usernames:
+                    while True:
+                        result = await check_roblox_username_exists(session, username)
+                        if result is False:
+                            usernames.append(username)
+                            break
+                        else:
+                            print(f"{Fore.WHITE}{username} - {Fore.GREEN}Account exists (taken), regenerating...{Style.RESET_ALL}")
+                            username = generate_username_by_filter()
+                else:
+                    usernames.append(username)
 
-            if not show_taken_usernames:
-                while True:
-                    result = await check_roblox_username_exists(session, username)
-                    if result is False:
-                        usernames.append(username)
-                        break
-                    else:
-                        print(f"{Fore.WHITE}{username} - {Fore.GREEN}Account exists (taken), regenerating...{Style.RESET_ALL}")
-                        username = generate_username_by_filter()
-            else:
-                usernames.append(username)
+                generated_usernames_count += 1
+                os.system('cls' if os.name == 'nt' else 'clear')
+                print_watermark(Fore.RED)
+                print(f"Generated {generated_usernames_count}/{number_of_usernames} usernames")
 
-            generated_usernames_count += 1
-            os.system('cls' if os.name == 'nt' else 'clear')
-            print_watermark()
-            print(f"Generated {generated_usernames_count} usernames so far")
+            # Using throttled concurrent checks for better performance
+            results = await check_usernames_concurrently(usernames, session, max_concurrent_requests=15)
 
-        results = await check_usernames_concurrently(usernames, session)
-        for username, status in zip(usernames, results):
-            display_username(username, status)
+            # Immediately display the results as soon as they are ready
+            for username, status in zip(usernames, results):
+                display_username(username, status)
 
-    finally:
-        await session.close()
+        except Exception as e:
+            print(f"{Fore.RED}An error occurred during username generation: {str(e)}{Style.RESET_ALL}")
+        finally:
+            await session.close()
 
 # Selenium-based account creator with headless mode
 def create_account(username):
@@ -311,7 +409,7 @@ def create_account(username):
 def account_creator():
     while True:
         os.system('cls' if os.name == 'nt' else 'clear')
-        print_watermark()
+        print_watermark(Fore.BLUE)
         username = input("With what username should we create your account? (or press Enter to return): ")
 
         if username == '':
@@ -330,7 +428,7 @@ def generation_page():
     generated_usernames_count = 0  # Reset count before generating
     while True:
         os.system('cls' if os.name == 'nt' else 'clear')
-        print_watermark()
+        print_watermark(Fore.RED)
         try:
             number_of_usernames = input("Enter how many usernames you want to generate (or press Enter to return): ")
             if number_of_usernames == '':
@@ -348,7 +446,7 @@ def generation_page():
 def username_checker():
     while True:
         os.system('cls' if os.name == 'nt' else 'clear')
-        print_watermark()
+        print_watermark(Fore.MAGENTA)
         username = input("Enter a username to check (or press Enter to return): ")
 
         if username == '':
@@ -365,43 +463,56 @@ def update_settings():
     global show_taken_usernames, generation_filter
     while True:
         os.system('cls' if os.name == 'nt' else 'clear')
-        print_watermark()
+        print_watermark(Fore.GREEN)
         print("Settings Menu:")
         print(f"1) Toggle showing taken usernames (current: {'On' if show_taken_usernames else 'Off'})")
-        print(f"2) Filters (current: {'Random 5 Symbol' if generation_filter == 1 else '6 Letters' if generation_filter == 2 else '5 Symbols with 3 Same' if generation_filter == 3 else '6 Symbols with 3 or 4 Same' if generation_filter == 4 else 'Thin Name'})")
+        print(f"2) Filters (current: {'Random 5 Symbol' if generation_filter == 1 else '6 Letters' if generation_filter == 2 else '5 Symbols with 3 Same' if generation_filter == 3 else '6 Symbols with 3 or 4 Same' if generation_filter == 4 else 'Thin Name' if generation_filter == 5 else '5 Symbols with 3 Same In a Row' if generation_filter == 6 else '6 Symbols with 4-5 Same In a Row' if generation_filter == 7 else '5 Symbols using only 2 symbols' if generation_filter == 8 else 'Not Set'})")
 
         choice = input("Select an option (or press Enter to return): ")
 
         if choice == '1':
             show_taken_usernames = not show_taken_usernames
         elif choice == '2':
+            os.system('cls' if os.name == 'nt' else 'clear')
+            print_watermark(Fore.GREEN)
             print("Select a filter:")
             print("1) Random 5 Symbol (default)")
             print("2) 6 Letters")
             print("3) 5 Symbols with 3 Same Symbols")
             print("4) 6 Symbols with 3 or 4 Same Symbols")
             print("5) Thin Name (5-6 symbols using only 't, i, l, 1, j')")
-            filter_choice = input("Enter your choice (1-5): ")
-            if filter_choice in ['1', '2', '3', '4', '5']:
+            print()
+            print("-- Hard to Generate")
+            print("6) 5 Symbols with 3 Same In a Row")
+            print("7) 6 Symbols with 4-5 Same In a Row")
+            print("8) 5 Symbols using only 2 symbols")
+            filter_choice = input("Enter your choice (1-8): ")
+            if filter_choice in ['1', '2', '3', '4', '5', '6', '7', '8']:
                 generation_filter = int(filter_choice)
             os.system('cls' if os.name == 'nt' else 'clear')
-            print_watermark()
+            print_watermark(Fore.GREEN)
         elif choice == '':
             break
 
 
+def safe_input(prompt=""):
+    try:
+        return input(prompt)
+    except RuntimeError:
+        return None
+
 # Main menu
 def main_menu():
-    print_watermark()
     while True:
         os.system('cls' if os.name == 'nt' else 'clear')
-        print_watermark()
+        print_watermark(Fore.WHITE)
         print("1) Start generating usernames")
         print("2) Username Checker")
         print("3) Account Creator (Windows only)")
         print("4) Settings")
         print("5) Exit")
-        choice = input("Select an option: ")
+        
+        choice = safe_input("Select an option: ")
 
         if choice == '1':
             generation_page()
@@ -419,5 +530,4 @@ def main_menu():
 
 # Run the main menu
 if __name__ == "__main__":
-    print_watermark()
     main_menu()
